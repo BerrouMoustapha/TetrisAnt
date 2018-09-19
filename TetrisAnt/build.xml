@@ -1,35 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project default="compile" name="compilation de Tetris">
+<project name="Compilation de Tetris" default="compile" xmlns:ivy="antlib:org.apache.ivy.ant">
 
-		<target name="clean" >
-			<echo message="Suppression des fichiers issus de la compilation"/>
-			<delete dir="${basedir}/bin"/>
-			<delete dir="${basedir}/dist"/>
-		</target>
+	<target name="retrieve">	
+		<ivy:retrieve sync="true" type="jar"/>
+		<ivy:settings />
+		<ivy:resolve />
+	</target>	
+	<property name="src.dir" location="${basedir}/src"/>
+	<property name="lib.dir" location="${basedir}/lib"/>
+	<property name="dist.dir" value="${basedir}/dist"/>
+	
+	<target name="clean">
+			<echo message="Suppression des fichiers issus de la compilation"> </echo>
+			<delete dir="${bin.dir}"/><delete dir="${dist.dir}"/>
+	</target>
+	
+	<target name="compile" depends="clean">
+		<mkdir dir="${bin.dir}"/>
+		<javac destdir="${bin.dir}" executable="${javac.version}">
+			<src path="${src.dir}"/>
+			<classpath path="${lib.dir}/commons-lang3-3.5.jar"/>
+		</javac>
+	</target>
+	
+	<target name="dist" depends="clean,compile">
+		<mkdir dir="${dist.dir}"/>
+		<mkdir dir="${dist.dir}/META-INF"/>
 		
-		<target name="compile" depends="clean" >
-			<mkdir dir="${basedir}/bin"/>
-			
-			<javac  destdir="bin" executable="${javac.version}">
-				<src path="${basedir}/src"/>
-				<classpath path="${basedir}/lib/commons-lang3-3.5.jar"/>
-			</javac>
-		
-		</target>
-		
-		<target name="dist" depends="clean,compile">
-			<mkdir dir="${basedir}/dist"/>
-			
-				<manifest file="${basedir}/bin/manifest.mf">
-					<attribute name="Built-By" value="Berrou"/>
-					<attribute name="Implementation-Version" value="1"/>
-					<attribute name="Main-Class" value="fr.ubo.tetris.Tetris"/>
-					<attribute name="Class-Path" value="${basedir}/lib/commons-lang3-3.5.jar"/>
-				</manifest>
-			<jar jarfile="${basedir}/dist/Tetris.jar" basedir="${basedir}/bin" manifest="${basedir}/bin/manifest.mf">
-			</jar>
-		</target>
-		
-		
-		
+		<manifest file="${dist.dir}/META-INF/MANIFEST.MF">
+			<attribute name="Built-By" value="moi"/>
+			<attribute name="Main-Class" value="fr.ubo.tetris.Tetris"/>
+			<attribute name="Class-Path" value="${lib.dir}/commons-lang3-3.5.jar"/>
+		</manifest>
+		<jar jarfile="${basedir}/dist/Tetris.jar" basedir="${bin.dir}" manifest="${dist.dir}/META-INF/MANIFEST.MF"/>
+	</target>
 </project>
+		
+
