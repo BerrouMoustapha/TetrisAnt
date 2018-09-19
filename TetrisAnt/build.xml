@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project default="compile" name="compilation de Tetris">
+
+		<target name="clean" >
+			<echo message="Suppression des fichiers issus de la compilation"/>
+			<delete dir="${basedir}/bin"/>
+			<delete dir="${basedir}/dist"/>
+		</target>
+		
+		<target name="compile" depends="clean" >
+			<mkdir dir="${basedir}/bin"/>
+			
+			<javac  destdir="bin" executable="${javac.version}">
+				<src path="${basedir}/src"/>
+				<classpath path="${basedir}/lib/commons-lang3-3.5.jar"/>
+			</javac>
+		
+		</target>
+		
+		<target name="dist" depends="clean,compile">
+			<mkdir dir="${basedir}/dist"/>
+			
+				<manifest file="${basedir}/bin/manifest.mf">
+					<attribute name="Built-By" value="Berrou"/>
+					<attribute name="Implementation-Version" value="1"/>
+					<attribute name="Main-Class" value="fr.ubo.tetris.Tetris"/>
+					<attribute name="Class-Path" value="${basedir}/lib/commons-lang3-3.5.jar"/>
+				</manifest>
+			<jar jarfile="${basedir}/dist/Tetris.jar" basedir="${basedir}/bin" manifest="${basedir}/bin/manifest.mf">
+			</jar>
+		</target>
+		
+		
+		
+</project>
