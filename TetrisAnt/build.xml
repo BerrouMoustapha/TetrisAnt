@@ -13,9 +13,11 @@
 	<target name="clean">
 			<echo message="Suppression des fichiers issus de la compilation"> </echo>
 			<delete dir="${bin.dir}"/><delete dir="${dist.dir}"/>
+			<delete dir="${lib.dir}"></delete>
+			<mkdir dir="${lib.dir}"/>
 	</target>
 	
-	<target name="compile" depends="clean">
+	<target name="compile" depends="clean,retrieve">
 		<mkdir dir="${bin.dir}"/>
 		<javac destdir="${bin.dir}" executable="${javac.version}">
 			<src path="${src.dir}"/>
