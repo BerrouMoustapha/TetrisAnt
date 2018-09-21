@@ -1,15 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="Compilation de Tetris" default="compile" xmlns:ivy="antlib:org.apache.ivy.ant">
 
+
+	<property name="src.dir" location="${basedir}/src"/>
+	<property name="lib.dir" location="${basedir}/lib"/>
+	<property name="dist.dir" value="${basedir}/dist"/>
+	<property name="bin.dir" value="${basedir}/bin"/>
+	<property name="results.dir" location="${basedir.test}"/>
+
+	<!-- Target Retrieve
+	-->
 	<target name="retrieve">	
 		<ivy:retrieve sync="true" type="jar"/>
 		<ivy:settings />
 		<ivy:resolve />
 	</target>	
-	<property name="src.dir" location="${basedir}/src"/>
-	<property name="lib.dir" location="${basedir}/lib"/>
-	<property name="dist.dir" value="${basedir}/dist"/>
 	
+	<!-- Target Clean
+		-->
 	<target name="clean">
 			<echo message="Suppression des fichiers issus de la compilation"> </echo>
 			<delete dir="${bin.dir}"/><delete dir="${dist.dir}"/>
@@ -17,6 +25,22 @@
 			<mkdir dir="${lib.dir}"/>
 	</target>
 	
+	<!-- Target dist
+			-->
+		<target name="dist" depends="clean,compile">
+			<mkdir dir="${dist.dir}"/>
+			<mkdir dir="${dist.dir}/META-INF"/>
+			
+			<manifest file="${dist.dir}/META-INF/MANIFEST.MF">
+				<attribute name="Built-By" value="moi"/>
+				<attribute name="Main-Class" value="fr.ubo.tetris.Tetris"/>
+				<attribute name="Class-Path" value="${lib.dir}/commons-lang3-3.5.jar"/>
+			</manifest>
+			<jar jarfile="${basedir}/dist/Tetris.jar" basedir="${bin.dir}" manifest="${dist.dir}/META-INF/MANIFEST.MF"/>
+		</target>
+	
+	<!-- Target Compile
+		-->
 	<target name="compile" depends="clean,retrieve">
 		<mkdir dir="${bin.dir}"/>
 		<javac destdir="${bin.dir}" executable="${javac.version}">
@@ -25,17 +49,60 @@
 		</javac>
 	</target>
 	
-	<target name="dist" depends="clean,compile">
-		<mkdir dir="${dist.dir}"/>
-		<mkdir dir="${dist.dir}/META-INF"/>
-		
-		<manifest file="${dist.dir}/META-INF/MANIFEST.MF">
-			<attribute name="Built-By" value="moi"/>
-			<attribute name="Main-Class" value="fr.ubo.tetris.Tetris"/>
-			<attribute name="Class-Path" value="${lib.dir}/commons-lang3-3.5.jar"/>
-		</manifest>
-		<jar jarfile="${basedir}/dist/Tetris.jar" basedir="${bin.dir}" manifest="${dist.dir}/META-INF/MANIFEST.MF"/>
+	<!-- Target Compile-Test
+		-->
+	<target name="compile-test">
+		<javac srcdir="${basedir}/test" destdir="${bin.dir}" classpath="${compile.classpath}" executable="${javac.version}"
+			includeantruntime="false">
+			<classpath>
+				<pathelement location="${basedir}/lib/commons-lang3-3.5.jar"/>
+				<pathelement location="${basedir}/lib/hamcrest-core-1.3.jar"/>
+				<pathelement location="${basedir}/lib/junit-4.12.jar"/>
+				<pathelement location="${bin.dir}"/>
+			</classpath>
+		</javac>
 	</target>
+	
+	<!-- Target Test
+		-->
+	<target name="test" depends="compile-test">
+			<delete dir="${basedir}/test1"></delete>  
+			<mkdir dir="${basedir}/test1"></mkdir>      
+			  <junit  fork="yes" printsummary="withOutAndErr"  haltonfailure="no">
+			      
+			        
+				<!-- Project classpath, must include junit.jar -->
+				<classpath >
+				<pathelement location="${basedir}/lib/commons-lang3-3.5.jar"/> 
+			    <pathelement location="${basedir}/lib/junit-4.12.jar"/> 
+			     <pathelement location="${basedir}/lib/hamcrest-core-1.3.jar"/> 
+			     <pathelement location="${obj.dir}"/> 
+				</classpath>
+					
+				<!-- test class -->
+				<classpath location="fr.ubo.tetris.Tetris" />
+					
+			  <formatter type="plain"/>
+			  <formatter type="xml"/>
+			  
+			<test name="fr.ubo.tetris.TestShape" todir="${results.dir}" />
+					
+			  </junit>
+	</target>
+	
+	<!-- Target Test-Repport
+		-->
+	<target name="test-reports" depends="test">
+	    	<delete dir="${basedir}/rapports"></delete>  
+	    	<mkdir dir="${basedir}/rapports"></mkdir>  
+	    	<junitreport todir="${basedir}/rapports">
+	    	         <fileset dir="${basedir}/test1">
+	    	             <include name="*Test-*.xml"/>
+	    	         </fileset>
+	    	       <report format="frames" todir="${basedir}/rapports"/>
+	    	        </junitreport>
+	</target>
+	
 </project>
 		
 
